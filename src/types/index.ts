@@ -45,7 +45,7 @@ export type StressMappingResult = {
   id: string;
   date: string;
   stressIntensity: number; // 0-100
-  category: 'low' | 'manageable' | 'high' | 'overwhelming';
+  category: 'low' | 'manageable' | 'elevated' | 'high';
   primaryContributors: string[];
   peakPeriod: 'morning' | 'afternoon' | 'evening' | 'variable';
   insightSummary: string;
@@ -93,4 +93,13 @@ export type Resource = {
   type: 'article' | 'audio' | 'video' | 'guide';
   description: string;
   url?: string;
+};
+
+export type StressMappingResponses = {
+  stressLevel: number;
+  contributors: string[];
+  peakTime: 'morning' | 'afternoon' | 'evening' | 'variable';
+  workload: 'light' | 'manageable' | 'heavy' | 'overwhelming';
+  recovery: 'often' | 'sometimes' | 'rarely' | 'never';
+  reflection?: string;
 };

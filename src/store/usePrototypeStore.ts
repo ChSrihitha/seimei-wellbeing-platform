@@ -26,7 +26,9 @@ interface PrototypeState {
   
   // Actions
   addCheckIn: (checkIn: WellbeingCheckIn) => void;
+  setCurrentCheckIn: (checkIn: WellbeingCheckIn) => void;
   setStressMappingResult: (result: StressMappingResult) => void;
+  setRecommendations: (recs: Recommendation[]) => void;
   addWellnessPlanItem: (item: Omit<WellnessPlanItem, 'id' | 'addedDate' | 'status'>) => void;
   updateWellnessPlanItemStatus: (id: string, status: WellnessPlanItem['status']) => void;
   removeWellnessPlanItem: (id: string) => void;
@@ -48,8 +50,20 @@ export const usePrototypeStore = create<PrototypeState>((set) => ({
     }
   })),
 
+  setCurrentCheckIn: (checkIn) => set((state) => ({
+    checkIns: [checkIn],
+    snapshot: {
+      ...state.snapshot,
+      lastCheckInDate: checkIn.date
+    }
+  })),
+
   setStressMappingResult: (result) => set({
     latestStressMappingResult: result
+  }),
+
+  setRecommendations: (recommendations) => set({
+    recommendations
   }),
 
   addWellnessPlanItem: (item) => set((state) => {

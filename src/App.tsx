@@ -1,6 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 import { PlaceholderPage } from './pages/PlaceholderPage';
+import { DashboardPage } from './features/dashboard/DashboardPage';
+import { AssessmentsHub } from './features/assessments/AssessmentsHub';
+import { StressMappingFlow } from './features/stress-mapping/StressMappingFlow';
+import { StressMappingResults } from './features/stress-mapping/StressMappingResults';
 
 // We'll replace the Wellness Plan placeholder with our test surface in Stage 4
 import { WellnessPlanPage } from './pages/WellnessPlanPage';
@@ -11,21 +15,13 @@ export default function App() {
       <Route path="/" element={<AppLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         
-        <Route path="dashboard" element={
-          <PlaceholderPage title="Dashboard" description="Current wellbeing snapshot and next actions." />
-        } />
+        <Route path="dashboard" element={<DashboardPage />} />
         
-        <Route path="assessments" element={
-          <PlaceholderPage title="Assessments Hub" description="Discover and begin available wellbeing assessments." />
-        } />
+        <Route path="assessments" element={<AssessmentsHub />} />
         
-        <Route path="assessments/stress-mapping" element={
-          <PlaceholderPage title="Stress Mapping" description="Guided stress assessment flow." />
-        } />
+        <Route path="assessments/stress-mapping" element={<StressMappingFlow />} />
         
-        <Route path="results/stress-mapping" element={
-          <PlaceholderPage title="Assessment Results" description="Your Stress Mapping insights and recommended next steps." />
-        } />
+        <Route path="results/stress-mapping" element={<StressMappingResults />} />
         
         <Route path="insights" element={
           <PlaceholderPage title="Insights & Trends" description="Visual understanding of your wellbeing patterns over time." />
