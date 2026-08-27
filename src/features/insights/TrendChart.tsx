@@ -47,9 +47,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
             type="monotone" 
             name="Stress"
             dataKey="stressLevel" 
-            stroke="var(--color-accent)" 
+            stroke="var(--color-feature-blue)" 
             strokeWidth={2}
-            dot={{ r: 4, fill: 'var(--color-accent)' }}
+            dot={{ r: 4, fill: 'var(--color-feature-blue)' }}
             activeDot={{ r: 6 }}
           />
           <Line 

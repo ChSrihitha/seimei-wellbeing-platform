@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
-import { PlaceholderPage } from './pages/PlaceholderPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { AssessmentsHub } from './features/assessments/AssessmentsHub';
 import { StressMappingFlow } from './features/stress-mapping/StressMappingFlow';
@@ -8,8 +7,12 @@ import { StressMappingResults } from './features/stress-mapping/StressMappingRes
 import { InsightsPage } from './features/insights/InsightsPage';
 import { AICompanionPage } from './features/ai-companion/AICompanionPage';
 
-// We'll replace the Wellness Plan placeholder with our test surface in Stage 4
-import { WellnessPlanPage } from './pages/WellnessPlanPage';
+import { WellnessPlanPage } from './features/wellness-plan/WellnessPlanPage';
+import { RecommendationsPage } from './features/recommendations/RecommendationsPage';
+import { ProgramsPage } from './features/programs/ProgramsPage';
+import { ResourcesPage } from './features/resources/ResourcesPage';
+import { DemoAssessmentPage } from './features/assessments/DemoAssessmentPage';
+import { SmartAlertsPage } from './features/alerts/SmartAlertsPage';
 
 export default function App() {
   return (
@@ -22,22 +25,23 @@ export default function App() {
         <Route path="assessments" element={<AssessmentsHub />} />
         
         <Route path="assessments/stress-mapping" element={<StressMappingFlow />} />
+        <Route path="assessments/:assessmentId" element={<DemoAssessmentPage />} />
         
         <Route path="results/stress-mapping" element={<StressMappingResults />} />
         
         <Route path="insights" element={<InsightsPage />} />
         
         <Route path="ai-companion" element={<AICompanionPage />} />
+
+        <Route path="recommendations" element={<RecommendationsPage />} />
+        <Route path="smart-alerts" element={<SmartAlertsPage />} />
         
         <Route path="wellness-plan" element={<WellnessPlanPage />} />
         
-        <Route path="programs" element={
-          <PlaceholderPage title="Programs" description="Guided SEIMEI experiences and Wellbeing Hive offerings." />
-        } />
-        
-        <Route path="resources" element={
-          <PlaceholderPage title="Resources" description="Self-guided wellbeing content and reset tools." />
-        } />
+        <Route path="programs" element={<ProgramsPage />} />
+        <Route path="programs/:programId" element={<ProgramsPage />} />
+        <Route path="resources" element={<ResourcesPage />} />
+        <Route path="resources/:resourceId" element={<ResourcesPage />} />
 
         <Route path="*" element={
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">

@@ -1,9 +1,52 @@
 import { useNavigate } from 'react-router-dom';
 import { usePrototypeStore } from '../../store/usePrototypeStore';
-import { PageHeader } from '../../components/ui/PageHeader';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { StressPatternChart } from '../../components/charts/StressPatternChart';
+import { ArrowRight, Leaf, ShieldAlert, Zap, Compass, CheckCircle2 } from 'lucide-react';
+import { cn } from '../../lib/utils';
+
+const CircularProgress = ({ value, label, size = 220, strokeWidth = 14 }: { value: number, label: string, size?: number, strokeWidth?: number }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (value / 100) * circumference;
+
+  let color = 'var(--color-status-low)';
+  if (value >= 25 && value < 50) color = 'var(--color-status-manageable)';
+  if (value >= 50 && value < 75) color = 'var(--color-status-elevated)';
+  if (value >= 75) color = 'var(--color-status-high)';
+  
+  return (
+    <div className="relative flex flex-col items-center justify-center" style={{ width: size, height: size }}>
+      <svg className="transform -rotate-90 w-full h-full">
+        <circle
+          className="text-[var(--color-border)]"
+          strokeWidth={strokeWidth}
+          stroke="currentColor"
+          fill="transparent"
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
+        />
+        <circle
+          style={{ stroke: color }}
+          className="transition-all duration-1000 ease-out drop-shadow-md"
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          fill="transparent"
+          r={radius}
+          cx={size / 2}
+          cy={size / 2}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center mt-2">
+        <span className="text-6xl font-display font-semibold tracking-tight" style={{ color: 'var(--color-text-primary)' }}>{value}</span>
+        <span className="text-sm font-medium uppercase tracking-widest mt-1" style={{ color }}>{label}</span>
+      </div>
+    </div>
+  );
+};
 
 export function StressMappingResults() {
   const navigate = useNavigate();
@@ -11,17 +54,17 @@ export function StressMappingResults() {
 
   if (!latestStressMappingResult) {
     return (
-      <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500 py-12 flex flex-col items-center text-center">
-        <div className="w-24 h-24 bg-[var(--color-surface-secondary)] rounded-full flex items-center justify-center text-4xl mb-4">
-          🍃
+      <div className="min-h-[70vh] flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-in fade-in duration-500">
+        <div className="w-24 h-24 bg-[var(--color-surface-secondary)] rounded-full flex items-center justify-center mb-8 shadow-sm border border-[var(--color-border)]/50">
+          <Leaf size={40} className="text-[var(--color-accent)] opacity-80" />
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+        <h1 className="text-3xl font-display font-medium text-[var(--color-text-primary)] mb-4">
           No Results Yet
         </h1>
-        <p className="text-[var(--color-text-secondary)] max-w-md">
+        <p className="text-[var(--color-text-secondary)] text-lg mb-10 leading-relaxed">
           Complete the Stress Mapping assessment to receive personalized insights into your stress patterns, contributors, and targeted resets.
         </p>
-        <Button onClick={() => navigate('/assessments/stress-mapping')} className="mt-8">
+        <Button onClick={() => navigate('/assessments/stress-mapping')} className="rounded-full px-8 bg-[var(--color-brand-900)] hover:bg-[var(--color-brand-800)] text-white shadow-md">
           Begin Assessment
         </Button>
       </div>
@@ -30,108 +73,125 @@ export function StressMappingResults() {
 
   const { stressIntensity, category, primaryContributors, peakPeriod, insightSummary } = latestStressMappingResult;
 
-  const categoryColor = 
-    category === 'low' ? 'text-green-600' :
-    category === 'manageable' ? 'text-blue-600' :
-    category === 'elevated' ? 'text-amber-600' :
-    'text-red-600';
-
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
-      <div className="flex justify-between items-end mb-8">
-        <PageHeader 
-          title="Stress Mapping Results" 
-          description="Your personalized stress pattern analysis and recommended resets."
-          className="mb-0"
-        />
-        <Button variant="outline" onClick={() => navigate('/assessments/stress-mapping')}>
+    <div className="space-y-7 animate-in fade-in duration-500 pb-16 max-w-6xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-display font-medium tracking-tight text-[var(--color-text-primary)] mb-3">
+            Mapping Results
+          </h1>
+          <p className="text-[var(--color-text-secondary)] text-lg">
+            Your personalized stress pattern analysis and recommended resets.
+          </p>
+        </div>
+        <Button variant="outline" className="rounded-full bg-[var(--color-surface-primary)] hover:bg-[var(--color-surface-secondary)]" onClick={() => navigate('/assessments/stress-mapping')}>
           Retake Assessment
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-1 space-y-6">
-          <Card className="bg-[var(--color-surface-secondary)] border-transparent text-center py-8">
-            <h2 className="text-sm font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2">Overall Intensity</h2>
-            <div className="text-7xl font-bold tracking-tight mb-2">
-              {stressIntensity}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Top Hero Section */}
+        <div className="lg:col-span-12">
+          <div className="bg-[var(--color-surface-secondary)] border border-[var(--color-border)]/60 rounded-2xl p-7 md:p-10 shadow-[0_4px_20px_rgba(42,64,38,0.04)] overflow-hidden relative">
+            <div className="absolute -top-32 -right-32 w-96 h-96 bg-[var(--color-accent-muted)] rounded-full opacity-40 blur-3xl pointer-events-none" />
+            
+            <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+              <div className="flex-shrink-0 relative">
+                <CircularProgress value={stressIntensity} label={category} />
+              </div>
+              
+              <div className="flex-1 space-y-6 max-w-2xl text-center md:text-left">
+                <h2 className="text-2xl font-display font-medium text-[var(--color-text-primary)]">
+                  Interpretation
+                </h2>
+                <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed">
+                  {insightSummary}
+                </p>
+              </div>
             </div>
-            <p className={`font-semibold text-lg capitalize ${categoryColor}`}>
-              {category}
-            </p>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Key Contributors</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {primaryContributors.map((c, i) => (
-                  <li key={i} className="flex items-center gap-3">
-                    <span className="w-2 h-2 rounded-full bg-[var(--color-accent)]"></span>
-                    <span className="text-[var(--color-text-primary)]">{c}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Peak Period</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-[var(--color-text-primary)] capitalize font-medium">{peakPeriod}</p>
-            </CardContent>
-          </Card>
+          </div>
         </div>
 
-        <div className="md:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pattern Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-[var(--color-text-primary)] leading-relaxed mb-6">
-                {insightSummary}
-              </p>
+        {/* Left Column */}
+        <div className="lg:col-span-4 space-y-8">
+          <div className="bg-[var(--color-surface-secondary)] border border-[var(--color-border)]/50 rounded-2xl p-6 shadow-[0_4px_20px_rgba(42,64,38,0.04)] h-full">
+            <h3 className="text-xl font-display font-medium text-[var(--color-text-primary)] mb-6 flex items-center">
+              <ShieldAlert size={22} className="mr-3 text-[var(--color-accent)]" /> Key Contributors
+            </h3>
+            <ul className="space-y-4">
+              {primaryContributors.map((c, i) => (
+                <li key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-[var(--color-surface-primary)] border border-[var(--color-border)]/30">
+                  <div className="w-8 h-8 rounded-full bg-[var(--color-surface-secondary)] border border-[var(--color-border)] flex items-center justify-center flex-shrink-0 text-xs font-semibold text-[var(--color-text-secondary)]">
+                    {i + 1}
+                  </div>
+                  <span className="text-[var(--color-text-primary)] font-medium pt-1">{c}</span>
+                </li>
+              ))}
+            </ul>
+            
+            <div className="mt-8 pt-8 border-t border-[var(--color-border)]/50">
+              <h3 className="text-base font-display font-medium text-[var(--color-text-primary)] mb-4 flex items-center">
+                <Zap size={18} className="mr-2 text-[var(--color-accent)]" /> Peak Period
+              </h3>
+              <div className="inline-block px-4 py-2 bg-[var(--color-accent-muted)] rounded-lg text-sm font-semibold text-[var(--color-accent)] uppercase tracking-wider">
+                {peakPeriod}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="lg:col-span-8 space-y-8">
+          <div className="bg-[var(--color-surface-secondary)] border border-[var(--color-border)]/50 rounded-2xl p-6 shadow-[0_4px_20px_rgba(42,64,38,0.04)]">
+            <h3 className="text-xl font-display font-medium text-[var(--color-text-primary)] mb-6">Pattern Analysis</h3>
+            <div className="bg-[var(--color-surface-primary)] p-6 rounded-2xl border border-[var(--color-border)]/30">
               <StressPatternChart peakPeriod={peakPeriod} baseIntensity={stressIntensity} />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-4 mt-8">Recommended Resets</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <h3 className="text-2xl font-display font-medium text-[var(--color-text-primary)] mb-6 flex items-center mt-4">
+              <Compass size={24} className="mr-3 text-[var(--color-accent)]" /> Recommended Resets
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {recommendations.map((rec) => {
                 const inPlan = wellnessPlan.some(p => p.recommendationId === rec.id || p.title === rec.title);
                 return (
-                  <Card key={rec.id} className="flex flex-col h-full border-[var(--color-border)]">
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs font-medium text-[var(--color-accent)] uppercase tracking-wider">{rec.type}</span>
-                        {rec.durationMinutes && <span className="text-xs text-[var(--color-text-secondary)]">{rec.durationMinutes} min</span>}
+                  <div key={rec.id} className="group bg-[var(--color-surface-secondary)] border border-[var(--color-border)]/50 rounded-2xl p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-4">
+                        <span className="text-[10px] font-semibold text-[var(--color-accent)] uppercase tracking-wider bg-[var(--color-accent-muted)] px-2.5 py-1 rounded-full">
+                          {rec.type}
+                        </span>
+                        {rec.durationMinutes && <span className="text-xs font-medium text-[var(--color-text-secondary)]">{rec.durationMinutes} min</span>}
                       </div>
-                      <CardTitle className="text-base">{rec.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col justify-between pt-0">
-                      <p className="text-sm text-[var(--color-text-secondary)] mb-6 line-clamp-2">{rec.reason}</p>
-                      <Button 
-                        variant={inPlan ? "secondary" : "primary"} 
-                        className="w-full text-sm" 
-                        disabled={inPlan}
-                        onClick={() => {
-                          addWellnessPlanItem({
-                            title: rec.title,
-                            type: rec.type,
-                            recommendationId: rec.id
-                          });
-                        }}
-                      >
-                        {inPlan ? 'Added to Plan' : rec.actionLabel}
-                      </Button>
-                    </CardContent>
-                  </Card>
+                      <h4 className="text-lg font-medium text-[var(--color-text-primary)] mb-3">{rec.title}</h4>
+                      <p className="text-sm text-[var(--color-text-secondary)] mb-8 leading-relaxed">{rec.reason}</p>
+                    </div>
+                    
+                    <button 
+                      disabled={inPlan}
+                      onClick={() => {
+                        addWellnessPlanItem({
+                          title: rec.title,
+                          type: rec.type,
+                          recommendationId: rec.id
+                        });
+                      }}
+                      className={cn(
+                        "w-full py-3 px-4 rounded-xl text-sm font-medium transition-all flex items-center justify-center",
+                        inPlan 
+                          ? "bg-[var(--color-surface-primary)] text-[var(--color-text-secondary)] border border-[var(--color-border)] cursor-default" 
+                          : "bg-[var(--color-brand-900)] text-white hover:bg-[var(--color-brand-800)] shadow-sm hover:shadow"
+                      )}
+                    >
+                      {inPlan ? (
+                        <><CheckCircle2 size={16} className="mr-2" /> Added to Plan</>
+                      ) : (
+                        <>{rec.actionLabel} <ArrowRight size={16} className="ml-2" /></>
+                      )}
+                    </button>
+                  </div>
                 );
               })}
             </div>

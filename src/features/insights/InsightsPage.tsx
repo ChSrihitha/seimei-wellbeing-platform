@@ -1,110 +1,16 @@
-import React from 'react';
+import { Activity, ArrowRight, Battery, Brain, HeartPulse, Lightbulb, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePrototypeStore } from '../../store/usePrototypeStore';
 import { demoHistoricalTrends } from '../../data/insightsData';
 import { TrendChart } from './TrendChart';
-import { Activity, Brain, Battery } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
 
-export const InsightsPage: React.FC = () => {
+export function InsightsPage() {
   const navigate = useNavigate();
-  const latestStressMappingResult = usePrototypeStore(state => state.latestStressMappingResult);
   const snapshot = usePrototypeStore(state => state.snapshot);
-  
-  // Use latest assessment result if available, otherwise fall back to demo snapshot
-  const interpretationText = latestStressMappingResult 
-    ? latestStressMappingResult.insightSummary
-    : "Your recent stress and recovery patterns indicate a stable period. Maintaining consistent resets will help sustain this balance.";
-
-  const highlightContributor = latestStressMappingResult && latestStressMappingResult.primaryContributors.length > 0
-    ? latestStressMappingResult.primaryContributors[0]
-    : "General Workload";
-
-  return (
-    <div className="max-w-4xl mx-auto py-8 px-4 h-full overflow-y-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-[var(--color-text-primary)] tracking-tight mb-2">
-          Insights & Trends
-        </h1>
-        <p className="text-[var(--color-text-secondary)] text-lg">
-          Understand your wellbeing patterns and what they mean for your recovery.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-              <Activity className="w-5 h-5" />
-            </div>
-            <h3 className="font-medium text-[var(--color-text-primary)]">Wellbeing Trend</h3>
-          </div>
-          <div className="text-3xl font-semibold text-[var(--color-text-primary)] mb-1">
-            {snapshot.overallScore}/100
-          </div>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            {snapshot.trend === 'improving' ? '↑ Improving' : snapshot.trend === 'declining' ? '↓ Declining' : '→ Stable'} compared to last period
-          </p>
-        </div>
-
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-rose-50 text-rose-600 rounded-lg">
-              <Brain className="w-5 h-5" />
-            </div>
-            <h3 className="font-medium text-[var(--color-text-primary)]">Key Pattern</h3>
-          </div>
-          <div className="text-lg font-medium text-[var(--color-text-primary)] mb-1">
-            {highlightContributor}
-          </div>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Primary contextual factor
-          </p>
-        </div>
-
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
-              <Battery className="w-5 h-5" />
-            </div>
-            <h3 className="font-medium text-[var(--color-text-primary)]">Focus Area</h3>
-          </div>
-          <div className="text-lg font-medium text-[var(--color-text-primary)] mb-1">
-            Active Recovery
-          </div>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Recommended priority
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-6 mb-8 shadow-sm">
-        <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-6">Historical Stress & Recovery</h2>
-        <TrendChart data={demoHistoricalTrends} />
-      </div>
-
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-8 shadow-sm">
-        <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-4">Contextual Interpretation</h2>
-        <p className="text-[var(--color-text-secondary)] text-lg leading-relaxed mb-6">
-          {interpretationText}
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button 
-            onClick={() => navigate('/ai-companion')}
-            className="px-6 py-3 bg-[var(--color-primary)] text-white font-medium rounded-lg hover:bg-opacity-90 transition-opacity"
-          >
-            Get AI Guidance
-          </button>
-          {!latestStressMappingResult && (
-            <button 
-              onClick={() => navigate('/assessments/stress-mapping')}
-              className="px-6 py-3 bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] font-medium rounded-lg hover:bg-[var(--color-border)] transition-colors border border-[var(--color-border)]"
-            >
-              Take Stress Mapping
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+  const result = usePrototypeStore(state => state.latestStressMappingResult);
+  const contributor = result?.primaryContributors[0] ?? 'General workload';
+  return <div className="mx-auto max-w-6xl space-y-5 pb-12 animate-in fade-in duration-500"><header><p className="mb-1 text-xs font-medium uppercase tracking-[0.16em] text-[var(--color-brand-600)]">Your wellbeing dashboard</p><h1 className="text-3xl font-semibold tracking-tight">Insights</h1><p className="mt-1 text-sm text-[var(--color-text-secondary)]">Understand your wellbeing patterns and make informed choices.</p></header><div className="grid grid-cols-2 gap-3 lg:grid-cols-4"><Metric icon={Activity} label="Wellness Score" value={`${snapshot.overallScore}`} detail="/ 100" tone="bg-[var(--color-brand-50)] text-[var(--color-brand-600)]" /><Metric icon={ShieldAlert} label="Stress Level" value={result?.category ?? snapshot.stressLevel} detail="Current pattern" tone="bg-[#eaf2fb] text-[#3d73bd]" /><Metric icon={Battery} label="Recovery" value="Adequate" detail="Keep building" tone="bg-[#f0ebfb] text-[#7653ad]" /><Metric icon={HeartPulse} label="Trend" value="+8%" detail="This week" tone="bg-[#fff4df] text-[#c28a25]" /></div><section className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-base font-semibold">Wellbeing Trends</h2><p className="mt-1 text-xs text-[var(--color-text-secondary)]">A gentle view of how stress and recovery are moving over time.</p></div><button onClick={() => navigate('/assessments/stress-mapping')} className="text-xs font-semibold text-[var(--color-accent)]">Update assessment <ArrowRight size={13} className="ml-1 inline" /></button></div><div className="h-80 rounded-xl bg-[var(--color-surface-primary)] p-4"><TrendChart data={demoHistoricalTrends} /></div></section><div className="grid grid-cols-1 gap-4 lg:grid-cols-3"><InsightCard icon={ShieldAlert} title="Stress Patterns" text={`Your stress tends to peak in the ${result?.peakPeriod ?? 'afternoon'}.`} action="View stress map" onClick={() => navigate('/results/stress-mapping')} tone="bg-[#eaf2fb] text-[#3d73bd]" /><InsightCard icon={Brain} title="Top Triggers" text={`${contributor} is your strongest contextual factor right now.`} action="Explore recommendations" onClick={() => navigate('/recommendations')} tone="bg-[#f0ebfb] text-[#7653ad]" /><InsightCard icon={Battery} title="Recovery Insights" text="Short resets are a practical way to protect your energy through the day." action="Open wellness plan" onClick={() => navigate('/wellness-plan')} tone="bg-[var(--color-brand-50)] text-[var(--color-brand-600)]" /></div><section className="flex flex-col items-start gap-5 rounded-2xl border border-[var(--color-brand-100)] bg-[var(--color-brand-50)] p-6 md:flex-row md:items-center md:justify-between"><div className="flex gap-3"><Lightbulb className="mt-0.5 text-[var(--color-brand-600)]" size={21} /><div><h2 className="text-base font-semibold text-[var(--color-brand-900)]">A useful pattern to notice</h2><p className="mt-1 max-w-2xl text-sm leading-relaxed text-[var(--color-brand-800)]">{result?.insightSummary ?? 'Consistent small actions can help sustain your wellbeing balance.'}</p></div></div><Button onClick={() => navigate('/ai-companion')} size="sm">Get contextual guidance <ArrowRight size={14} className="ml-2" /></Button></section></div>;
+}
+function Metric({ icon: Icon, label, value, detail, tone }: { icon: typeof Activity; label: string; value: string; detail: string; tone: string }) { return <section className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-[0_4px_20px_rgba(42,64,38,0.03)]"><span className={`flex h-9 w-9 items-center justify-center rounded-full ${tone}`}><Icon size={17} /></span><p className="mt-4 text-[11px] text-[var(--color-text-secondary)]">{label}</p><strong className="mt-1 block text-xl capitalize">{value} <small className="text-xs font-normal text-[var(--color-text-secondary)]">{detail}</small></strong></section>; }
+function InsightCard({ icon: Icon, title, text, action, onClick, tone }: { icon: typeof Activity; title: string; text: string; action: string; onClick: () => void; tone: string }) { return <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[0_4px_20px_rgba(42,64,38,0.03)]"><span className={`flex h-10 w-10 items-center justify-center rounded-full ${tone}`}><Icon size={19} /></span><h2 className="mt-4 text-sm font-semibold">{title}</h2><p className="mt-2 min-h-10 text-xs leading-relaxed text-[var(--color-text-secondary)]">{text}</p><button onClick={onClick} className="mt-4 text-xs font-semibold text-[var(--color-accent)]">{action} <ArrowRight size={13} className="ml-1 inline" /></button></section>; }

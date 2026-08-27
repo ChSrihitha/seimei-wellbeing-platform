@@ -1,21 +1,81 @@
 @import "tailwindcss";
 
 @theme {
-  --color-surface-primary: #F7F9F7;
-  --color-surface-secondary: #FFFFFF;
-  --color-text-primary: #1A2820;
-  --color-text-secondary: #5C6B61;
-  --color-border: #E1E8E3;
-  --color-accent: #2A5338;
-  --color-accent-muted: #E2EBE5;
-  --color-positive: #356D48;
-  --color-focus: #2A5338;
+  --color-brand-50: #f1f7ed;
+  --color-brand-100: #e2efdb;
+  --color-brand-200: #c7dfbd;
+  --color-brand-300: #a6cb96;
+  --color-brand-400: #7eae68;
+  --color-brand-500: #5c9547;
+  --color-brand-600: #477c38;
+  --color-brand-700: #39632f;
+  --color-brand-800: #31552b;
+  --color-brand-900: #2b4b27;
+  --color-brand-950: #1d321b;
 
-  --font-sans: "Inter", system-ui, sans-serif;
+  /* Neutrals (Stone/Charcoal) */
+  --color-neutral-50: #f8faf6;
+  --color-neutral-100: #f1f4ee;
+  --color-neutral-200: #e4e9e0;
+  --color-neutral-300: #d6d3d1;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e;
+  --color-neutral-700: #44403c;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #20251f;
+  --color-neutral-950: #0c0a09;
+
+  /* Semantic */
+  --color-status-low: #356951;       /* Calm green */
+  --color-status-manageable: #d97706; /* Muted amber */
+  --color-status-elevated: #e98b38;
+  --color-status-high: #d95e55;
+
+  /* Surface Mappings */
+  --color-surface-primary: #f7f8f4;
+  --color-surface-secondary: #ffffff;
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-border: #e4e9e0;
+  --color-accent: var(--color-brand-600);
+  --color-accent-muted: var(--color-brand-50);
+  --color-positive: var(--color-brand-600);
+  --color-focus: var(--color-brand-600);
+  --color-feature-blue: #3d73bd;
+  --color-feature-orange: #d87935;
+  --color-feature-purple: #7653ad;
+  --color-feature-gold: #c28a25;
+  --shadow-seimei-card: 0 4px 20px rgba(42, 64, 38, 0.04);
+  --shadow-seimei-hero: 0 8px 28px rgba(42, 64, 38, 0.07);
+
+  /* Typography */
+  --font-sans: "Avenir Next", "Segoe UI", sans-serif;
+  --font-display: "Avenir Next", "Segoe UI", sans-serif;
 }
 
 @layer base {
+  * { box-sizing: border-box; }
+
   body {
     @apply bg-[var(--color-surface-primary)] text-[var(--color-text-primary)] font-sans antialiased;
+    letter-spacing: 0;
+  }
+
+  button, input, textarea, select { font: inherit; }
+
+  ::selection {
+    background: var(--color-brand-200);
+    color: var(--color-brand-950);
+  }
+
+  .seimei-dashboard-hero {
+    box-shadow: var(--shadow-seimei-hero);
+    background: linear-gradient(135deg, #ffffff 0%, #fbfdf9 68%, #f1f7ed 100%);
+  }
+
+  .seimei-analytics-surface {
+    box-shadow: var(--shadow-seimei-card);
+    border-color: #d9e6f3;
   }
 }

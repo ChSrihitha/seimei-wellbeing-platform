@@ -134,3 +134,34 @@ export type CompanionGuidance = {
   }[];
   contextLabel?: string;
 };
+
+export type DemoAssessmentResult = {
+  assessmentId: string;
+  score: number;
+  label: string;
+  completedAt: string;
+  summary: string;
+};
+
+export type AlertSettings = {
+  highStress: boolean;
+  burnoutRisk: boolean;
+  weeklyReminder: boolean;
+  planReminder: boolean;
+  frequency: 'immediate' | 'daily' | 'weekly';
+};
+
+export type DemoNotification = {
+  id: string;
+  title: string;
+  detail: string;
+  destination?: string;
+  read: boolean;
+};
+
+export type ProgramActivityState = {
+  joined: string[];
+  registered: string[];
+  started: string[];
+  bookings: Record<string, { date: string; time: string }>;
+};

@@ -1,131 +1,23 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { ArrowRight, CheckCircle2, Leaf, MessageCircle, Moon, Sparkles, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { usePrototypeStore } from '../../store/usePrototypeStore';
 import { resolveCompanionGuidance } from '../../lib/companionLogic';
 import type { CompanionContext } from '../../types';
-import { Bot, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
 
-export const AICompanionPage: React.FC = () => {
+export function AICompanionPage() {
   const navigate = useNavigate();
+  const [reply, setReply] = useState<string | null>(null);
   const latestStressMappingResult = usePrototypeStore(state => state.latestStressMappingResult);
   const checkIns = usePrototypeStore(state => state.checkIns);
   const recommendations = usePrototypeStore(state => state.recommendations);
   const wellnessPlan = usePrototypeStore(state => state.wellnessPlan);
   const snapshot = usePrototypeStore(state => state.snapshot);
   const addWellnessPlanItem = usePrototypeStore(state => state.addWellnessPlanItem);
-
-  const currentCheckIn = checkIns.length > 0 ? checkIns[0] : null;
-
-  // Construct context and resolve guidance deterministically
-  const guidance = useMemo(() => {
-    const context: CompanionContext = {
-      latestStressMappingResult,
-      currentCheckIn,
-      recommendations,
-      wellnessPlan,
-      snapshot,
-    };
-    return resolveCompanionGuidance(context);
-  }, [latestStressMappingResult, currentCheckIn, recommendations, wellnessPlan, snapshot]);
-
-  // Keep track of locally added actions to provide immediate UI feedback before navigation/state settle
-  const [addedActionIds, setAddedActionIds] = useState<Set<string>>(new Set());
-
-  const handleActionClick = (action: { id: string; label: string; actionType: 'add-to-plan' | 'navigate'; destination?: string }) => {
-    if (action.actionType === 'navigate' && action.destination) {
-      navigate(action.destination);
-      return;
-    }
-
-    if (action.actionType === 'add-to-plan') {
-      const isAlreadyInPlan = wellnessPlan.some(item => item.recommendationId === action.id);
-      if (isAlreadyInPlan || addedActionIds.has(action.id)) {
-        return; // Prevent duplicate additions
-      }
-
-      // Find the corresponding recommendation from store to reuse existing properties
-      const rec = recommendations.find(r => r.id === action.id);
-      if (rec) {
-        addWellnessPlanItem({
-          recommendationId: rec.id,
-          title: rec.title,
-          type: rec.type,
-          scheduledDate: new Date().toISOString()
-        });
-        
-        // Update local state to show 'Added' UI
-        setAddedActionIds(prev => new Set(prev).add(action.id));
-      }
-    }
-  };
-
-  return (
-    <div className="max-w-2xl mx-auto py-12 px-4 h-full overflow-y-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="p-3 bg-[var(--color-primary)] text-white rounded-xl shadow-sm">
-          <Bot className="w-8 h-8" />
-        </div>
-        <div>
-          <h1 className="text-3xl font-semibold text-[var(--color-text-primary)] tracking-tight">
-            AI Wellness Companion
-          </h1>
-          <p className="text-[var(--color-text-secondary)] text-lg">
-            Contextual wellbeing support
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm overflow-hidden mb-8">
-        <div className="bg-[var(--color-surface-secondary)] border-b border-[var(--color-border)] px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[var(--color-text-secondary)]">
-            <Sparkles className="w-5 h-5 text-indigo-500" />
-            <span className="font-medium text-sm tracking-wide uppercase">{guidance.contextLabel || 'Guidance'}</span>
-          </div>
-        </div>
-        
-        <div className="p-8">
-          <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-4">
-            {guidance.title}
-          </h2>
-          <p className="text-[var(--color-text-secondary)] text-lg leading-relaxed mb-6">
-            {guidance.summary}
-          </p>
-          <div className="inline-block bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)] px-4 py-2 rounded-lg text-sm mb-8">
-            {guidance.reason}
-          </div>
-
-          <div className="space-y-3">
-            {guidance.suggestedActions.map(action => {
-              const isAlreadyInPlan = action.actionType === 'add-to-plan' && 
-                (wellnessPlan.some(item => item.recommendationId === action.id) || addedActionIds.has(action.id));
-
-              if (isAlreadyInPlan) {
-                return (
-                  <button 
-                    key={action.id}
-                    disabled
-                    className="w-full flex items-center justify-between px-6 py-4 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl transition-all"
-                  >
-                    <span className="font-medium">Added to Wellness Plan</span>
-                    <CheckCircle2 className="w-5 h-5" />
-                  </button>
-                );
-              }
-
-              return (
-                <button 
-                  key={action.id}
-                  onClick={() => handleActionClick(action)}
-                  className="w-full flex items-center justify-between px-6 py-4 bg-[var(--color-surface)] text-[var(--color-text-primary)] border border-[var(--color-border)] rounded-xl hover:border-[var(--color-primary)] hover:shadow-sm transition-all group"
-                >
-                  <span className="font-medium">{action.label}</span>
-                  <ArrowRight className="w-5 h-5 text-[var(--color-text-secondary)] group-hover:text-[var(--color-primary)] transition-colors" />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+  const guidance = useMemo(() => resolveCompanionGuidance({ latestStressMappingResult, currentCheckIn: checkIns[0] ?? null, recommendations, wellnessPlan, snapshot } satisfies CompanionContext), [latestStressMappingResult, checkIns, recommendations, wellnessPlan, snapshot]);
+  const firstName = usePrototypeStore(state => state.profile.name.split(' ')[0]);
+  const addRecommendation = (title: string, type: 'program' | 'resource' | 'quick-action' | 'session') => { if (!wellnessPlan.some(item => item.title === title)) addWellnessPlanItem({ title, type }); setReply(`${title} has been added to your wellness plan.`); };
+  const cards = [['5-Minute Reset', 'Create space in a busy day', Leaf, 'quick-action'], ['Breathing Exercise', 'Calm your nervous system', Zap, 'quick-action'], ['Sleep Recovery', 'Build a better evening', Moon, 'program'], ['Talk to a Coach', 'Get human support', MessageCircle, 'session']] as const;
+  return <div className="mx-auto max-w-6xl space-y-5 pb-12 animate-in fade-in duration-500"><header><p className="mb-1 text-xs font-medium uppercase tracking-[0.16em] text-[var(--color-brand-600)]">Personal support, on demand</p><h1 className="text-3xl font-semibold tracking-tight">AI Wellness Companion</h1><p className="mt-1 text-sm text-[var(--color-text-secondary)]">Personalized support based on your wellbeing journey.</p></header><div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_310px]"><section className="rounded-2xl border border-[var(--color-border)] bg-white shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><div className="flex items-center gap-3 border-b border-[var(--color-border)] bg-[var(--color-brand-50)] p-5"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--color-brand-600)]"><Sparkles size={19} /></span><div><h2 className="text-sm font-semibold">A calm place to think things through</h2><p className="text-xs text-[var(--color-text-secondary)]">Your responses stay private.</p></div></div><div className="space-y-5 p-5 md:p-7"><div className="flex max-w-[85%] gap-3"><span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-100)] text-[var(--color-brand-700)]"><Sparkles size={15} /></span><div className="rounded-2xl rounded-tl-sm bg-[var(--color-surface-primary)] p-4 text-sm leading-relaxed">Hi {firstName} 👋<br /><br />I noticed your stress level has been higher this week. How is that feeling for you?</div></div><div className="flex flex-wrap gap-2 pl-11">{['Yes, I feel overwhelmed', 'I’m doing okay', 'Help me reset'].map(option => <button key={option} onClick={() => setReply(option === 'Help me reset' ? 'Let’s start with one slow breath in, and a longer breath out. I’ve added a short reset below.' : 'Thank you for telling me. We can take this one small step at a time.')} className="rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-xs font-medium text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]">{option}</button>)}</div>{reply && <div className="ml-auto flex max-w-[85%] gap-3"><div className="rounded-2xl rounded-tr-sm bg-[var(--color-accent)] p-4 text-sm leading-relaxed text-white">{reply}</div></div>}<div className="flex max-w-[85%] gap-3"><span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-100)] text-[var(--color-brand-700)]"><Sparkles size={15} /></span><div className="rounded-2xl rounded-tl-sm border border-[var(--color-border)] p-4 text-sm leading-relaxed"><strong>{guidance.title}</strong><p className="mt-2 text-[var(--color-text-secondary)]">{guidance.summary}</p><p className="mt-3 text-xs text-[var(--color-brand-700)]">{guidance.reason}</p></div></div><Button onClick={() => navigate('/wellness-plan')} variant="outline" size="sm" className="ml-11">Open my wellness plan <ArrowRight size={13} className="ml-2" /></Button></div></section><aside className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><h2 className="flex items-center gap-2 text-base font-semibold"><MessageCircle size={17} className="text-[var(--color-accent)]" />Recommended for You</h2><div className="mt-4 space-y-3">{cards.map(([title, subtitle, Icon, type]) => <button key={title} onClick={() => type === 'session' ? navigate('/programs/coaching') : addRecommendation(title, type)} className="group flex w-full items-center gap-3 rounded-xl border border-[var(--color-border)] p-3 text-left transition hover:border-[var(--color-brand-300)] hover:bg-[var(--color-brand-50)]"><span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-brand-50)] text-[var(--color-brand-600)]"><Icon size={18} /></span><span className="flex-1"><strong className="block text-xs">{title}</strong><span className="text-[10px] text-[var(--color-text-secondary)]">{subtitle}</span></span><ArrowRight size={14} className="text-[var(--color-text-secondary)] transition-transform group-hover:translate-x-1" /></button>)}</div><div className="mt-5 rounded-xl bg-[var(--color-brand-50)] p-4 text-xs leading-relaxed text-[var(--color-brand-800)]"><CheckCircle2 size={15} className="mr-1 inline" />Small actions become a steadier rhythm over time.</div></aside></div></div>;
+}

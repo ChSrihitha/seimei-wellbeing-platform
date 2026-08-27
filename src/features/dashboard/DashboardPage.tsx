@@ -1,100 +1,51 @@
-import { PageHeader } from '../../components/ui/PageHeader';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { useState } from 'react';
+import { Activity, ArrowRight, Bell, Battery, Brain, Flame, Heart, Leaf, MessageCircle, Moon, Sparkles, Target, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { usePrototypeStore } from '../../store/usePrototypeStore';
-import { DailyCheckIn } from './DailyCheckIn';
-import { useNavigate } from 'react-router-dom';
+import type { WellbeingCheckIn } from '../../types';
+import { cn } from '../../lib/utils';
+
+const moods = [
+  { value: 'struggling' as const, label: 'Low Energy', icon: Battery, tone: 'bg-[#f0ebfb] text-[#7653ad]' },
+  { value: 'okay' as const, label: 'Stressed', icon: Zap, tone: 'bg-[#eaf2fb] text-[#3d73bd]' },
+  { value: 'exhausted' as const, label: 'Burnout', icon: Flame, tone: 'bg-[#fff0e7] text-[#d87935]' },
+  { value: 'great' as const, label: 'Happy', icon: Heart, tone: 'bg-[#eef6e9] text-[var(--color-brand-600)]' },
+];
+
+const assessments = [
+  ['Mental Wellness Check', 'Check your mental wellness and emotional wellbeing', Brain, 'bg-[#f0ebfb] text-[#7653ad]', '/assessments/mental-wellness'],
+  ['Burnout Risk Index', 'Assess your burnout risk before it impacts you', Flame, 'bg-[#fff0e7] text-[#d87935]', '/assessments/burnout-risk'],
+  ['Stress Mapping', 'Identify your stress triggers and patterns', Activity, 'bg-[#eaf2fb] text-[#3d73bd]', '/assessments/stress-mapping'],
+  ['Engagement Predictor', 'Discover your engagement and retention insights', Target, 'bg-[#fff1e7] text-[#dc7040]', '/assessments/engagement'],
+  ['Personalized Wellness Plan', 'Get AI-powered recommendations just for you', Leaf, 'bg-[#eef6e9] text-[var(--color-brand-600)]', '/recommendations'],
+] as const;
+
+const quickActions = [['5-Minute Reset', 'Quick relaxation', Leaf, '/programs/reset'], ['Breathing Exercise', 'Calm your mind', Activity, '/resources/breathing'], ['Sleep Guide', 'Better sleep', Moon, '/resources/sleep'], ['Talk to Coach', 'Book a session', MessageCircle, '/programs/coaching']] as const;
+
+function Score({ value }: { value: number }) {
+  const circumference = 2 * Math.PI * 43;
+  return <div className="relative h-[118px] w-[118px] shrink-0"><svg className="h-full w-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="43" fill="none" stroke="#e8ede5" strokeWidth="8" /><circle cx="50" cy="50" r="43" fill="none" stroke="var(--color-brand-600)" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference - value / 100 * circumference} /></svg><div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-3xl font-semibold">{value}</span><span className="text-[10px] text-[var(--color-text-secondary)]">/100</span></div></div>;
+}
 
 export function DashboardPage() {
-  const { profile, snapshot, recommendations, latestStressMappingResult } = usePrototypeStore();
   const navigate = useNavigate();
+  const { profile, snapshot, latestStressMappingResult, setCurrentCheckIn, notifications, markNotificationRead, markAllNotificationsRead } = usePrototypeStore();
+  const [selectedMood, setSelectedMood] = useState<WellbeingCheckIn['mood'] | null>(null);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const chooseMood = (mood: WellbeingCheckIn['mood']) => { setSelectedMood(mood); setCurrentCheckIn({ id: 'dashboard-checkin', date: new Date().toISOString(), mood }); };
+  const firstName = profile.name.split(' ')[0];
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
-      <PageHeader
-        title={`Good morning, ${profile.name.split(' ')[0]}`}
-        description="Here is your wellbeing snapshot for today."
-      />
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
-          {/* Primary Wellbeing Summary */}
-          <Card className="bg-[var(--color-surface-secondary)] border-transparent overflow-hidden">
-            <div className="p-8 pb-0">
-              <h2 className="text-sm font-medium text-[var(--color-text-secondary)] uppercase tracking-wider mb-2">Overall Wellbeing</h2>
-              <div className="flex items-end gap-4 mb-6">
-                <span className="text-6xl font-bold tracking-tight text-[var(--color-accent)]">{snapshot.overallScore}</span>
-                <span className="text-lg text-[var(--color-text-secondary)] mb-2">/ 100</span>
-              </div>
-            </div>
-            
-            <div className="bg-white/50 border-t border-[var(--color-border)] p-6 grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-[var(--color-text-secondary)] mb-1">Stress Level</p>
-                <p className="font-medium capitalize">{latestStressMappingResult?.category || snapshot.stressLevel}</p>
-              </div>
-              <div>
-                <p className="text-sm text-[var(--color-text-secondary)] mb-1">Energy Level</p>
-                <p className="font-medium capitalize">{snapshot.energyLevel}</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Trend & Insight */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Pattern</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-[var(--color-text-primary)] leading-relaxed">
-                {latestStressMappingResult?.insightSummary || 
-                 "Your wellbeing has remained stable this week. Your energy is holding steady, but there's a slight buildup of afternoon stress."}
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Next Actions Area */}
-          <div>
-            <h3 className="text-lg font-medium mb-4">Recommended for you</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {recommendations.slice(0, 2).map((rec) => (
-                <Card key={rec.id} className="flex flex-col h-full">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-medium text-[var(--color-accent)] uppercase tracking-wider">{rec.type}</span>
-                      {rec.durationMinutes && <span className="text-xs text-[var(--color-text-secondary)]">{rec.durationMinutes} min</span>}
-                    </div>
-                    <CardTitle className="text-base">{rec.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-1 flex flex-col justify-between pt-0">
-                    <p className="text-sm text-[var(--color-text-secondary)] mb-4 line-clamp-2">{rec.reason}</p>
-                    <Button variant="outline" className="w-full text-sm" onClick={() => navigate('/wellness-plan')}>
-                      {rec.actionLabel}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <DailyCheckIn />
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Upcoming</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 rounded-lg bg-[var(--color-surface-secondary)] border border-[var(--color-border)]">
-                <p className="text-xs font-medium text-[var(--color-accent)] mb-1">TODAY • 2:00 PM</p>
-                <p className="font-medium mb-1">The 15-Minute Reset</p>
-                <p className="text-sm text-[var(--color-text-secondary)]">SEIMEI Wellbeing Hive</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+  return <div className="seimei-dashboard-hero mx-auto max-w-6xl space-y-5 rounded-2xl p-1 pb-10 animate-in fade-in duration-500">
+    <header className="flex items-start justify-between gap-4"><div><p className="mb-1 text-xs text-[var(--color-text-secondary)]">Thursday, 22 May 2025</p><h1 className="text-3xl font-semibold tracking-tight md:text-[2.15rem]">Good Morning, {firstName} <span className="text-2xl">👋</span></h1><p className="mt-1 text-sm text-[var(--color-text-secondary)]">Small steps today. Big changes tomorrow.</p></div><div className="hidden items-center gap-3 sm:flex"><Button variant="outline" size="sm" onClick={() => navigate('/programs')}><Activity size={15} className="mr-2" />Book a Session</Button><div className="relative"><button aria-label="Notifications" onClick={() => setNotificationsOpen(open => !open)} className="relative rounded-xl border border-[var(--color-border)] bg-white p-2.5 text-[var(--color-text-secondary)]"><Bell size={17} /><span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#d95e55] text-[9px] text-white">{notifications.filter(notification => !notification.read).length}</span></button>{notificationsOpen && <div className="absolute right-0 top-12 z-30 w-80 rounded-2xl border border-[var(--color-border)] bg-white p-3 shadow-xl"><div className="flex items-center justify-between border-b border-[var(--color-border)] pb-3"><strong className="text-sm">Notifications</strong><button onClick={markAllNotificationsRead} className="text-[10px] font-semibold text-[var(--color-accent)]">Mark all as read</button></div><div className="mt-2 max-h-80 space-y-1 overflow-y-auto">{notifications.map(notification => <button key={notification.id} onClick={() => { markNotificationRead(notification.id); if (notification.destination) navigate(notification.destination); setNotificationsOpen(false); }} className={`w-full rounded-xl p-3 text-left hover:bg-[var(--color-brand-50)] ${notification.read ? 'opacity-60' : ''}`}><span className="block text-xs font-semibold">{notification.title}</span><span className="mt-1 block text-[10px] text-[var(--color-text-secondary)]">{notification.detail}</span></button>)}</div></div>}</div></div></header>
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_310px]">
+      <div className="space-y-5">
+        <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><h2 className="mb-4 text-base font-semibold">How are you feeling today?</h2><div className="grid grid-cols-2 gap-3 md:grid-cols-4">{moods.map(({ value, label, icon: Icon, tone }) => <button key={value} onClick={() => chooseMood(value)} className={cn('flex items-center gap-3 rounded-xl border p-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-sm', selectedMood === value ? 'border-[var(--color-accent)] bg-[var(--color-brand-50)] ring-1 ring-[var(--color-accent)]' : 'border-[var(--color-border)]')}><span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', tone)}><Icon size={20} /></span><span className="text-xs font-semibold">{label}</span></button>)}</div><p className="mt-4 text-[11px] text-[var(--color-text-secondary)]">🔒 Your check-ins are private and confidential</p></section>
+        <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><div className="mb-4 flex items-center justify-between"><h2 className="text-base font-semibold">Start an Assessment</h2><button onClick={() => navigate('/assessments')} className="text-xs font-medium text-[var(--color-accent)]">View all <ArrowRight size={13} className="ml-1 inline" /></button></div><div className="grid grid-cols-1 gap-3 md:grid-cols-3">{assessments.map(([title, description, Icon, tone, path]) => <button key={title} onClick={() => navigate(path)} className="group flex min-h-[92px] items-start gap-3 rounded-xl border border-[var(--color-border)] p-3 text-left transition-all hover:-translate-y-0.5 hover:border-[var(--color-brand-300)] hover:shadow-sm"><span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full', tone)}><Icon size={20} /></span><span className="min-w-0"><strong className="block text-xs leading-snug">{title}</strong><span className="mt-1 block text-[10px] leading-relaxed text-[var(--color-text-secondary)]">{description}</span></span><ArrowRight size={14} className="ml-auto mt-auto shrink-0 text-[var(--color-text-secondary)] transition-transform group-hover:translate-x-1" /></button>)}</div></section>
+        <section className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><div className="mb-4 flex items-center justify-between"><h2 className="text-base font-semibold">Your Wellness Score</h2><button onClick={() => navigate('/insights')} className="text-xs font-medium text-[var(--color-accent)]">View Progress <ArrowRight size={13} className="ml-1 inline" /></button></div><div className="flex flex-col items-center gap-5 sm:flex-row"><Score value={snapshot.overallScore} /><div className="grid flex-1 grid-cols-2 gap-x-8 gap-y-4 text-xs"><div><p className="text-[var(--color-text-secondary)]">Last Assessment</p><strong className="mt-1 block text-[var(--color-brand-700)]">2 Days Ago</strong></div><div><p className="text-[var(--color-text-secondary)]">Current Status</p><span className="mt-1 inline-block rounded-full bg-[var(--color-brand-50)] px-2.5 py-1 text-[10px] font-semibold text-[var(--color-brand-700)]">Healthy</span></div><div><p className="text-[var(--color-text-secondary)]">Trend</p><strong className="mt-1 block text-[var(--color-brand-700)]">↗ +8% this week</strong></div><div><p className="text-[var(--color-text-secondary)]">Stress Level</p><strong className="mt-1 block capitalize">{latestStressMappingResult?.category ?? snapshot.stressLevel}</strong></div></div></div></section>
+        <section><h2 className="mb-3 text-base font-semibold">Quick Actions</h2><div className="grid grid-cols-2 gap-3 md:grid-cols-4">{quickActions.map(([title, subtitle, Icon, path]) => <button key={title} onClick={() => navigate(path)} className="rounded-xl border border-[var(--color-border)] bg-white p-4 text-left shadow-[0_4px_20px_rgba(42,64,38,0.03)] transition hover:-translate-y-0.5 hover:shadow-sm"><span className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-brand-50)] text-[var(--color-brand-600)]"><Icon size={18} /></span><strong className="block text-xs">{title}</strong><span className="mt-1 block text-[10px] text-[var(--color-text-secondary)]">{subtitle}</span></button>)}</div></section>
       </div>
+      <aside className="space-y-5"><section className="relative min-h-[330px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[#f2f7ee] p-5 shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><div className="relative"><div className="mb-4 flex items-center gap-2 text-sm font-semibold"><Sparkles size={16} className="text-[var(--color-accent)]" />AI Wellness Companion</div><div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-[#dcead4] text-3xl shadow-sm">◉</div><div className="rounded-xl border border-[var(--color-border)] bg-white p-4 text-sm shadow-sm"><p className="font-medium">Hi {firstName},</p><p className="mt-3 leading-relaxed text-[var(--color-text-secondary)]">I noticed your stress score has increased this week. Would you like a 5-minute guided breathing session?</p><Button className="mt-4 w-full" size="sm" onClick={() => navigate('/ai-companion')}>Start Session <ArrowRight size={14} className="ml-2" /></Button><button onClick={() => navigate('/ai-companion')} className="mt-3 block w-full text-center text-[11px] text-[var(--color-text-secondary)]">Not now, maybe later</button></div><div className="mt-4 flex justify-center gap-1.5"><span className="h-1.5 w-5 rounded-full bg-[var(--color-accent)]" /><span className="h-1.5 w-1.5 rounded-full bg-[#d8ded4]" /><span className="h-1.5 w-1.5 rounded-full bg-[#d8ded4]" /></div></div></section><section className="rounded-2xl border border-[var(--color-border)] bg-white p-5 shadow-[0_4px_20px_rgba(42,64,38,0.04)]"><h2 className="mb-4 text-base font-semibold">Upcoming Programs & Sessions</h2><div className="space-y-3">{['15-Minute Reset Session', 'Weekly Unwind Program', 'Wellness Coaching'].map((title, index) => <div key={title} className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] p-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-50)] text-[var(--color-brand-600)]"><Activity size={16} /></span><div className="min-w-0 flex-1"><strong className="block truncate text-xs">{title}</strong><span className="text-[10px] text-[var(--color-text-secondary)]">{index === 0 ? 'Today, 4:00 PM' : 'This week'}</span></div><button onClick={() => navigate('/programs')} className="text-[10px] font-semibold text-[var(--color-accent)]">Join</button></div>)}</div></section><div className="rounded-2xl border border-[var(--color-brand-100)] bg-[var(--color-brand-50)] p-5"><p className="text-2xl leading-none text-[var(--color-brand-500)]">“</p><p className="mt-2 text-sm font-medium leading-relaxed text-[var(--color-brand-900)]">Wellbeing is not a destination,<br />it’s a daily practice.</p></div></aside>
     </div>
-  );
+  </div>;
 }
