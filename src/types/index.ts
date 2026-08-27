@@ -103,3 +103,34 @@ export type StressMappingResponses = {
   recovery: 'often' | 'sometimes' | 'rarely' | 'never';
   reflection?: string;
 };
+
+export type TrendDataPoint = {
+  id: string;
+  period: string;
+  wellbeingScore: number;
+  stressLevel: number; // 0-100
+  energyLevel: number; // 0-100
+  recoveryLevel: number; // 0-100
+};
+
+export type CompanionContext = {
+  latestStressMappingResult: StressMappingResult | null;
+  currentCheckIn: WellbeingCheckIn | null;
+  recommendations: Recommendation[];
+  wellnessPlan: WellnessPlanItem[];
+  snapshot: WellbeingSnapshot;
+};
+
+export type CompanionGuidance = {
+  title: string;
+  summary: string;
+  reason: string;
+  primaryRecommendationId?: string;
+  suggestedActions: {
+    id: string;
+    label: string;
+    actionType: 'add-to-plan' | 'navigate';
+    destination?: string;
+  }[];
+  contextLabel?: string;
+};

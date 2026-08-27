@@ -5,6 +5,8 @@ import { DashboardPage } from './features/dashboard/DashboardPage';
 import { AssessmentsHub } from './features/assessments/AssessmentsHub';
 import { StressMappingFlow } from './features/stress-mapping/StressMappingFlow';
 import { StressMappingResults } from './features/stress-mapping/StressMappingResults';
+import { InsightsPage } from './features/insights/InsightsPage';
+import { AICompanionPage } from './features/ai-companion/AICompanionPage';
 
 // We'll replace the Wellness Plan placeholder with our test surface in Stage 4
 import { WellnessPlanPage } from './pages/WellnessPlanPage';
@@ -23,13 +25,9 @@ export default function App() {
         
         <Route path="results/stress-mapping" element={<StressMappingResults />} />
         
-        <Route path="insights" element={
-          <PlaceholderPage title="Insights & Trends" description="Visual understanding of your wellbeing patterns over time." />
-        } />
+        <Route path="insights" element={<InsightsPage />} />
         
-        <Route path="ai-companion" element={
-          <PlaceholderPage title="AI Wellness Companion" description="Contextual guidance and supportive next steps." />
-        } />
+        <Route path="ai-companion" element={<AICompanionPage />} />
         
         <Route path="wellness-plan" element={<WellnessPlanPage />} />
         
