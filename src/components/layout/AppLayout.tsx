@@ -70,7 +70,7 @@ export const AppLayout = () => {
             </span>
             <div className="leading-none">
               <span className="text-[23px] font-semibold tracking-[-0.04em] text-[var(--color-brand-950)]">SEIMEI</span>
-              <span className="block text-[9px] text-[var(--color-brand-700)] mt-1 tracking-tight">Corporate Wellbeing Hive</span>
+              <span className="block text-[9px] text-[var(--color-brand-700)] mt-1 tracking-tight">Corporate Longevity Hive</span>
             </div>
           </Link>
           <button
