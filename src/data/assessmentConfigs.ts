@@ -6,7 +6,8 @@ export type DemoAssessmentConfig = {
   kind: DemoAssessmentKind;
   color: string;
   questions: string[];
-  options: string[];
+  options: string[] | string[][];
+  questionScoring?: ('normal' | 'reverse')[];
   resultLabel: (score: number) => string;
   resultText: (score: number) => string;
 };
@@ -16,12 +17,75 @@ const engagementLabel = (score: number) => score >= 67 ? 'High Engagement' : sco
 
 export const demoAssessmentConfigs: Record<string, DemoAssessmentConfig> = {
   'mental-wellness': {
-    title: 'Mental Wellness Check', intro: 'Reflect on your mood, connection, motivation, and work-life balance.', kind: 'scale', color: '#7653ad',
-    questions: ['How would you describe your mood recently?', 'How often have you felt overwhelmed?', 'How satisfied are you with your work-life balance?', 'How connected do you feel to people around you?', 'How often have you felt motivated this week?'],
-    options: ['Very Poor', 'Poor', 'Neutral', 'Good', 'Excellent'],
-    resultLabel: score => score >= 67 ? 'Strong Wellbeing' : score >= 34 ? 'Steady Wellbeing' : 'Needs Support',
-    resultText: score => `Your overall wellbeing score is ${score}/100. Consider one small action that supports your emotional balance today.`,
-  },
+  title: 'Mental Wellness Check',
+  intro: 'Reflect on your emotional balance, stress, connection, motivation, and work-life balance.',
+  kind: 'scale',
+  color: '#7653ad',
+
+  questions: [
+    'Over the past 7 days, how often have you felt emotionally balanced?',
+    'How often has stress made it difficult to focus on your usual responsibilities?',
+    'How satisfied are you with the balance between your work and personal life?',
+    'How supported and connected do you feel by the people around you?',
+    'How consistently have you felt motivated and able to engage with your day?',
+  ],
+
+  options: [
+    [
+      'Rarely',
+      'Occasionally',
+      'Some of the time',
+      'Most of the time',
+      'Almost always',
+    ],
+    [
+      'Never',
+      'Rarely',
+      'Sometimes',
+      'Often',
+      'Very often',
+    ],
+    [
+      'Very dissatisfied',
+      'Dissatisfied',
+      'Neither satisfied nor dissatisfied',
+      'Satisfied',
+      'Very satisfied',
+    ],
+    [
+      'Not at all',
+      'Slightly',
+      'Moderately',
+      'Very',
+      'Extremely',
+    ],
+    [
+      'Not at all',
+      'Slightly',
+      'Moderately',
+      'Mostly',
+      'Very consistently',
+    ],
+  ],
+
+  questionScoring: [
+    'normal',
+    'reverse',
+    'normal',
+    'normal',
+    'normal',
+  ],
+
+  resultLabel: score =>
+    score >= 67
+      ? 'Strong Wellbeing'
+      : score >= 34
+        ? 'Steady Wellbeing'
+        : 'Needs Support',
+
+  resultText: score =>
+    `Your overall wellbeing score is ${score}/100. Consider one small action that supports your emotional balance today.`,
+},
   'burnout-risk': {
     title: 'Burnout Risk Index', intro: 'Notice the patterns that can signal professional fatigue before they become overwhelming.', kind: 'scale', color: '#d87935',
     questions: ['Do you feel exhausted before your workday starts?', 'How often do you think about work after office hours?', 'Have you lost motivation toward your job?', 'Do you struggle to concentrate?', 'Do you feel appreciated at work?', 'Have you considered quitting recently?', 'How often do you feel overwhelmed?', 'How many hours do you typically work?'],
